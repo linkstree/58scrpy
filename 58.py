@@ -1,9 +1,8 @@
 from bs4 import BeautifulSoup
-import time
 import requests
 import re
 
-father_url=['http://xa.58.com/changanlu/zufang/pn{}'.format(i) for i in range(1,20)]
+father_url=['http://xa.58.com/changanlu/zufang/pn{}'.format(i) for i in range(1,2)]
 def from_father_get_son(fa_url):
     fin_url=[]
     for i in father_url:
@@ -11,9 +10,8 @@ def from_father_get_son(fa_url):
         soup = BeautifulSoup(wb_text.text,'lxml')
         for link in soup.select('body > div.conwrap.clearfix > div.content.clearfix > div.listcon > div > dl > dd > h3 > a'):
             a=link.get('href').split('?')[0]
-            if ('clk' and 'jing' and 'jump') not in a:
+            if 'clk' not in a and 'jing' not in a and 'anjuke' not in a:
                 fin_url.append(a)
-
     return fin_url
 
 def get_url_features(url):
@@ -26,7 +24,7 @@ def get_url_features(url):
     imgs = soup.select('#smainPic')
     addresses = soup.select('.xiaoqu')
     # print(addresses)
-    b=re.sub(r'[\r\n\t\xa0 ]','',addresses[0].get_text()) if addresses != [] else 'unknow'
+    b=re.sub(r'\s','',addresses[0].get_text()) if addresses != [] else 'unknow'
     data = {
         'category':categorys[0].get_text() if categorys != [] else 'unknow',
         'titles':titles[0].get_text() if titles != [] else 'unknow',
@@ -37,11 +35,4 @@ def get_url_features(url):
     }
     print(data)
 url_a=from_father_get_son(father_url)
-print(url_a)
-for i in url_a:
-    # time.sleep(2)
-    get_url_features(i)
-
-
-
-
+list(map(get_url_features,url_a))
