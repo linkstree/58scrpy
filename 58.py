@@ -39,7 +39,7 @@ def get_url_features(url):
 url_a=from_father_get_son(father_url)
 print(url_a)
 for i in url_a:
-    time.sleep(2)
+    # time.sleep(2)
     get_url_features(i)
 
 
