@@ -17,7 +17,8 @@ def from_father_get_son(fa_url):
 def get_url_features(url):
     wb_data=requests.get(url)
     soup = BeautifulSoup(wb_data.text,'lxml')
-    categorys=soup.select('body > div.headerWrap > div > div.headerLeft.pa > span > a')
+    categorys='-'.join(i.get_text() for i in soup.select('.titFontC'))
+    # print(categorys)
     titles = soup.select('body > div.main > div.house-title > h1')
     update_times = soup.select('body > div.main > div.house-title > div > span')
     prices = soup.select('body > div.main > div.house-info.white-block.clearfix > div.house-primary-content-wrap.fr > ul > li.house-primary-content-li.house-primary-content-fir.clearfix > div > i > em')
@@ -26,7 +27,7 @@ def get_url_features(url):
     # print(addresses)
     b=re.sub(r'\s','',addresses[0].get_text()) if addresses != [] else 'unknow'
     data = {
-        'category':categorys[0].get_text() if categorys != [] else 'unknow',
+        'category':categorys if categorys != [] else 'unknow',
         'titles':titles[0].get_text() if titles != [] else 'unknow',
         'update_time':update_times[0].get_text() if update_times != [] else 'unknow',
         'price':prices[0].get_text()if prices != [] else 'unknow',
