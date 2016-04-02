@@ -12,8 +12,8 @@ def from_father_get_son(fa_url):
         fin_url.extend(uuu)
     return fin_url
 
-# print(from_father_get_son(father_url))
-# url_a=from_father_get_son(father_url)[0]
+print(from_father_get_son(father_url))
+url_a=from_father_get_son(father_url)[0]
 def get_url_features(url):
     wb_data=requests.get(url)
     soup = BeautifulSoup(wb_data.text,'lxml')
