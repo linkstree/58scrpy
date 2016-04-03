@@ -1,8 +1,12 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+import pymongo
+client = pymongo.MongoClient('127.0.0.1',27017)
+aaa = client['aaa']
+tab=aaa['tab']
 
-father_url=['http://xa.58.com/changanlu/zufang/pn{}'.format(i) for i in range(1,22)]
+father_url=['http://xa.58.com/changanlu/zufang/pn{}'.format(i) for i in range(1,2)]
 def from_father_get_son(fa_url):
     fin_url=[]
     for i in father_url:
@@ -35,5 +39,8 @@ def get_url_features(url):
         'address':b
     }
     print(data)
+    return data
 url_a=from_father_get_son(father_url)
-list(map(get_url_features,url_a))
+for i in map(get_url_features,url_a):
+    tab.insert(i)
+
