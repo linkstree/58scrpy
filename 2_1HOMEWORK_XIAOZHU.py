@@ -26,4 +26,4 @@ def get_page_within(pages):
 get_page_within(3) #获取前三页面得数据
 for item in tab.find({'price':{'$gte':500}}):
     print(item)
-print(tab)
+
