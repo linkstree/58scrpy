@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import re
 
-father_url=['http://xa.58.com/changanlu/zufang/pn{}'.format(i) for i in range(1,2)]
+father_url=['http://xa.58.com/changanlu/zufang/pn{}'.format(i) for i in range(1,22)]
 def from_father_get_son(fa_url):
     fin_url=[]
     for i in father_url:
