@@ -20,6 +20,7 @@ def from_father_get_son(fa_url):
             #获得的url中http://xa.58.com/zufang/25522253586480x.shtml?version=fangchan_list_pc_0003&amp;psid=158560840191353050051259090&amp;entinfo=25522253586480_0"
             #?之后的字符串实际上经测试是可以去掉的，这里用split方法
             if 'clk' not in a and 'jing' not in a and 'anjuke' not in a:
+                #这里发现一些不属于58的跳转页面，这里用一个判断来筛选
                 fin_url.append(a)
     return fin_url
 
