@@ -38,7 +38,7 @@ def get_url_features(url):
     b=re.sub(r'\s','',addresses[0].get_text()) if addresses != [] else 'unknow'
     #地址部分我使用了正则表达式的替换功能，因为get_text()中得到了大量的空白字符，包括换行符，制表符,这里用\s去替换效果很完美
 
-    data = {#每一个字段后面都使用了解析式因为在跑大量数据时，我们肯定不希望中间因为error退出
+    data = {#每一个字段后面都使用了if解析式因为在跑大量数据时，我们肯定不希望中间因为error退出
         'category':categorys if categorys != [] else 'unknow',
         'titles':titles[0].get_text() if titles != [] else 'unknow',
         'update_time':update_times[0].get_text() if update_times != [] else 'unknow',
@@ -50,7 +50,7 @@ def get_url_features(url):
     return data
 url_a=from_father_get_son(father_url)
 for i in map(get_url_features,url_a):
-    #这里用map()函数对于每一个租房信息进行一次爬取
+    #这里用map()函数对于每一个租房详情url进行一次爬取
     print(i)
-    #tab.insert(i)
+    #tab.insert(i)这里可以插入mongo数据
 
