@@ -2,26 +2,37 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import pymongo
-# client = pymongo.MongoClient('127.0.0.1',27017)这里定义了mongo的链接方法如需使用请去掉注释
-# aaa = client['aaa']
-# tab=aaa['tab']
-
-father_url=['http://xa.58.com/changanlu/zufang/pn{}'.format(i) for i in range(1,2)]
+import sys
+client = pymongo.MongoClient('127.0.0.1',27017)#这里定义了mongo的链接方法如需使用请去掉注释
+aaa = client['aaa']
+tab=aaa['tab']
+father_url_breakpoint=aaa['breakpoint']
+father_url_page=aaa['father_url_page']
+father_url=['http://xa.58.com/changanlu/zufang/pn{}'.format(i) for i in range(1,22)]
 #这里father_url就是需要爬取的页面，也就是长安区的租房信息用format来构造从第一页到第n页
 
 def from_father_get_son(fa_url):
 #定义这个函数用来从father_url取得son_url,即页面中每条租房信息的url
     fin_url=[]
     for i in father_url:
-        wb_text = requests.get(i)
-        soup = BeautifulSoup(wb_text.text,'lxml')
-        for link in soup.select('body > div.conwrap.clearfix > div.content.clearfix > div.listcon > div > dl > dd > h3 > a'):
-            a=link.get('href').split('?')[0]
-            #获得的url中http://xa.58.com/zufang/25522253586480x.shtml?version=fangchan_list_pc_0003&amp;psid=158560840191353050051259090&amp;entinfo=25522253586480_0"
-            #?之后的字符串实际上经测试是可以去掉的，这里用split方法
-            if 'clk' not in a and 'jing' not in a and 'anjuke' not in a:
-                #这里发现一些不属于58的跳转页面，这里用一个判断来筛选
-                fin_url.append(a)
+        if father_url_page.find({'fa_url_page':i}) :
+            continue
+        try :
+            wb_text = requests.get(i)
+        except requests.exceptions.ConnectionError:
+            print('sorry,网络中断程序退出')
+            sys.exit()
+        else:
+            soup = BeautifulSoup(wb_text.text,'lxml')
+            for link in soup.select('body > div.conwrap.clearfix > div.content.clearfix > div.listcon > div > dl > dd > h3 > a'):
+                a=link.get('href').split('?')[0]
+                #获得的url中http://xa.58.com/zufang/25522253586480x.shtml?version=fangchan_list_pc_0003&amp;psid=158560840191353050051259090&amp;entinfo=25522253586480_0"
+                #?之后的字符串实际上经测试是可以去掉的，这里用split方法
+                if 'clk' not in a and 'jing' not in a and 'anjuke' not in a:
+                    #这里发现一些不属于58的跳转页面，这里用一个判断来筛选
+                    fin_url.append(a)
+                    father_url_breakpoint.save({'fin_url':link})
+        father_url_page.update({'fa_url_page':i},{'$set':{'fa_url_page':i}},True)
     return fin_url
 
 def get_url_features(url):
@@ -52,5 +63,5 @@ url_a=from_father_get_son(father_url)
 for i in map(get_url_features,url_a):
     #这里用map()函数对于每一个租房详情url进行一次爬取
     print(i)
-    #tab.insert(i)这里可以插入mongo数据
+    tab.insert(i)#这里可以插入mongo数据
 
