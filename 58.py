@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import pymongo
-client = pymongo.MongoClient('127.0.0.1',27017)#这里定义了mongo的链接方法如需使用请去掉注释
+client = pymongo.MongoClient('127.0.0.1',27017)#这里定义了mongo的链接
 cacth_58 = client['cactch_58']
 fa_url = cacth_58['fa_url']
 son_url = cacth_58['son_url']
