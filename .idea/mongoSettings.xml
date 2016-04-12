@@ -4,10 +4,11 @@
     <option name="serverConfigurations">
       <list>
         <ServerConfiguration>
+          <option name="connectOnIdeStartup" value="true" />
           <option name="label" value="mongo" />
           <option name="serverUrls">
             <list>
-              <option value="localhost:27017" />
+              <option value="127.0.0.1:27017" />
             </list>
           </option>
         </ServerConfiguration>
