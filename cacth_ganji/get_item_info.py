@@ -21,11 +21,22 @@ def url_spider():
         wb_text=requests.get(i['channel_url'],headers=headers)
         soup=BeautifulSoup(wb_text.text,'lxml')
         # urls=soup.select('ul li.js-item a.ft-tit')
-        urls=[b.get('href') for b in soup.select('ul li.js-item a.ft-tit')]
-        print(urls)
-get_item_url(ganji_channel.get_all_channel(),range(4))
+        # urls=[b.get('href') for b in soup.select('ul li.js-item a.ft-tit')]
+        for b in soup.select('ul li.js-item a.ft-tit'):
+            print(b)
+            print(len(soup.select('ul li.js-item a.ft-tit')))
+        # print(urls)
+get_item_url(ganji_channel.get_all_channel(),range(1,4))
 url_spider()
-# print(list(channel_urls.find({'crawled':'false'})))
+print(list(channel_urls.find({'crawled':'false'})))
 
+# wb_text=requests.get('http://bj.ganji.com/jiaju/o1/',headers=headers)
+# soup = BeautifulSoup(wb_text.text,'lxml')
+# url=soup.select('ul li.js-item a.ft-tit')
+# a=0
+# for i in url:
+#     a+=1
+#     print(a,i.get_text())
+# print(len(url))
 
 
