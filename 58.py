@@ -43,6 +43,7 @@ def get_url_features():
         b=re.sub(r'\s','',addresses[0].get_text()) if addresses != [] else 'unknow'
         #地址部分我使用了正则表达式的替换功能，因为get_text()中得到了大量的空白字符，包括换行符，制表符,这里用\s去替换效果很完美
 
+
         data = {#每一个字段后面都使用了解析式因为在跑大量数据时，我们肯定不希望中间因为error退出
             'category':categorys if categorys != [] else 'unknow',
             'titles':titles[0].get_text() if titles != [] else 'unknow',
