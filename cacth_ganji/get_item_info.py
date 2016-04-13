@@ -32,6 +32,6 @@ def url_spider():
                 item_urls.insert({'item_url':wb_te.url})
             elif not item_urls.find_one({'item_url':a}):
                 item_urls.insert({'item_url':a})
-
+map(get_item_url,ganji_channel.get_all_channel(),range(1,1000))
 url_spider()
 
