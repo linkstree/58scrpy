@@ -9,7 +9,8 @@ cacth_ganji=client['cacth_ganji']
 channel_urls = cacth_ganji['channel_urls']
 item_urls = cacth_ganji['item_urls']
 headers={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36',
-        'referer':'http://bj.ganji.com/wu/'}
+        'referer':'http://bj.ganji.com/wu/',
+         'Connection': 'keep-alive'}
 
 def get_item_url(channel,page,who_sell=0):
     for i in channel:
@@ -20,12 +21,19 @@ def get_item_url(channel,page,who_sell=0):
             wb_text=requests.get(channel_url)
             soup = BeautifulSoup(wb_text.text,'lxml')
             # if len(soup.select('li.js-item a.ft-tit')) == 5 and '抱歉' in soup.select('div.no-search dl dd ')[0].text:
-            if not soup.select('li a.next span'):
-                print('这个页面被抛弃，因为不存在',channel_url)
+            '''if not soup.select('.next') or len(soup.select('ul li.js-item a.ft-tit')) == 5:
+                print('由于下一页按钮没有或者该页面只select到5个条目,所以认为该页不存在',channel_url)
                 break
             if not channel_urls.find_one({'channel_url':channel_url,'crawled':'false'}) and 'sorry' not in channel_url:
-                print('哈哈,已经设定目标',channel_url)
+                print('哈哈,已经将该页插入到channel_urls库中了，可以被url_spider搞了',channel_url)
                 channel_urls.insert({'channel_url':channel_url,'crawled':'false'})
+                '''
+            if soup.select('.next') or len(soup.select('ul li.js-item a.ft-tit')) != 5:
+                channel_urls.insert({'channel_url': channel_url, 'crawled': 'false'})
+                print('哈哈,已经将该页插入到channel_urls库中了，可以被url_spider搞了',channel_url)
+            else:
+                print('由于下一页按钮没有或者该页面只select到5个条目,所以认为该页不存在', channel_url)
+                break
             time.sleep(2)
 
 def url_spider():
@@ -41,8 +49,8 @@ def url_spider():
             elif not item_urls.find_one({'item_url':a}):
                 item_urls.insert({'item_url':a})
                 print('哈哈，已经设定目标',wb_te.url)
-        channel_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
-        time.sleep(2)
+            channel_urls.update({'_id':a['_id']},{'$set':{'crawled':'true'}})
+            time.sleep(2)
 
 get_item_url(ganji_channel.get_all_channel(),range(1,1000))
 url_spider()
