@@ -41,7 +41,7 @@ def get_others_commodity_url_to_db(channel_url):
         elif not item_urls.find_one({'item_url':a}):
             item_urls.insert({'item_url':a})
             print('哈哈，已经将商品的详情页的url加入到item_urls库了')
-        channel_urls.update({'_id':a['_id']},{'$set':{'crawled':'true'}})
+        channel_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
         time.sleep(2)
 def url_spider():
     for i in channel_urls.find({'crawled':'false'}):
@@ -59,7 +59,7 @@ def url_spider():
                 elif not item_urls.find_one({'item_url':a}):
                     item_urls.insert({'item_url':a})
                     print('哈哈，已经设定目标',wb_te.url)
-                channel_urls.update({'_id':a['_id']},{'$set':{'crawled':'true'}})
+                channel_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
                 time.sleep(2)
 
 get_item_url(ganji_channel.get_all_channel(),range(1,1000))
