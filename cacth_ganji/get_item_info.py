@@ -1,7 +1,6 @@
 from cacth_ganji import ganji_channel
 from bs4 import BeautifulSoup
 import requests
-import re
 import pymongo
 import time
 client = pymongo.MongoClient('127.0.0.1',port=27017)
@@ -41,7 +40,7 @@ def get_others_commodity_url_to_db(channel_url):
         elif not item_urls.find_one({'item_url':a}):
             item_urls.insert({'item_url':a})
             print('哈哈，已经将商品的详情页的url加入到item_urls库了')
-        channel_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
+        channel_urls.update({'_id':channel_url['_id']},{'$set':{'crawled':'true'}})
         time.sleep(2)
 def url_spider():
     for i in channel_urls.find({'crawled':'false'}):
@@ -52,19 +51,38 @@ def url_spider():
             soup=BeautifulSoup(wb_text.text,'lxml')
             urls=[b.get('href') for b in soup.select('ul li.js-item a.ft-tit') ]
             for a in urls:
+                wb_te=requests.get(a)
                 if 'click' in a and not item_urls.find_one({'item_url':a}):
-                    wb_te=requests.get(a)
-                    item_urls.insert({'item_url':wb_te.url})
+                    item_urls.insert({'item_url':wb_te.url,'crawled':'false'})
                     print('哈哈，已经设定目标',wb_te.url)
                 elif not item_urls.find_one({'item_url':a}):
-                    item_urls.insert({'item_url':a})
+                    item_urls.insert({'item_url':a,'crawled':'false'})
                     print('哈哈，已经设定目标',wb_te.url)
                 channel_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
                 time.sleep(2)
 
-get_item_url(ganji_channel.get_all_channel(),range(1,1000))
-url_spider()
-# get_others_commodity_url_to_db('http://bj.ganji.com/wupinjiaohuan/o2')
+
+def detail_page_spider(item_url):
+        wb_text=requests.get(item_url,headers=headers)
+        if wb_text.status_code == 404 :
+            pass
+        else:
+            soup = BeautifulSoup(wb_text.text,'lxml')
+            data = {
+                'title':soup.select('h1.title-name')[0].text,
+                'pub_time':soup.select('i.pr-5')[0].text.strip().split(' ')[0],
+                'category':list(soup.select('ul.det-infor > li:nth-of-type(1) > span')[0].stripped_strings),
+                'price': soup.select('.f22.fc-orange.f-type')[0].text,
+                'area': list(soup.select('ul.det-infor > li:nth-of-type(3) > a')[0].stripped_strings)
+            }
+        print(data)
+
+
+detail_page_spider('http://bj.ganji.com/rirongbaihuo/1916475342x.htm')
+
+
+# get_item_url(ganji_channel.get_all_channel(),range(1,1000))
+# url_spider()
 
 
 
