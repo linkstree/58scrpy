@@ -7,6 +7,7 @@ client = pymongo.MongoClient('127.0.0.1',port=27017)
 cacth_ganji=client['cacth_ganji']
 channel_urls = cacth_ganji['channel_urls']
 item_urls = cacth_ganji['item_urls']
+item_detail_info_db=cacth_ganji['item_detail_info_db']
 headers={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36',
         'referer':'http://bj.ganji.com/wu/',
          'Connection': 'keep-alive'}
@@ -68,21 +69,36 @@ def detail_page_spider(item_url):
             pass
         else:
             soup = BeautifulSoup(wb_text.text,'lxml')
+            a=soup.select('.second-det-infor.clearfix > li:nth-of-type(1)')[0] if  soup.select('.second-det-infor.clearfix > li:nth-of-type(1)') != [] else None
+            if a != None:
+                a.label.string=''
             data = {
                 'title':soup.select('h1.title-name')[0].text,
                 'pub_time':soup.select('i.pr-5')[0].text.strip().split(' ')[0],
                 'category':list(soup.select('ul.det-infor > li:nth-of-type(1) > span')[0].stripped_strings),
                 'price': soup.select('.f22.fc-orange.f-type')[0].text,
-                'area': list(soup.select('ul.det-infor > li:nth-of-type(3) > a')[0].stripped_strings)
+                'area':list(map(lambda x:x.text,list(soup.select('ul.det-infor > li:nth-of-type(3) > a')))),
+                'new_or_old':list(a.stripped_strings) if a != None else None,
+                'url':item_url
             }
-        print(data)
+            item_detail_info_db.insert(data)
+            print('已经将这条信息插入到数据库',data)
+            item_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
 
 
-detail_page_spider('http://bj.ganji.com/rirongbaihuo/1916475342x.htm')
+# detail_page_spider('http://bj.ganji.com/jiaju/1475537716x.htm')
 
 
 # get_item_url(ganji_channel.get_all_channel(),range(1,1000))
 # url_spider()
+
+for i in item_urls.find({'crawled':'false'}):
+    detail_page_spider(i['item_url'])
+    time.sleep(2)
+
+# for i in item_urls.find():
+#     item_urls.update({'_id':i['_id']},{'$set':{'crawled':'false'}})
+
 
 
 
