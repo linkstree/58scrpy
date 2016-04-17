@@ -64,26 +64,29 @@ def url_spider():
 
 
 def detail_page_spider(item_url):
-        wb_text=requests.get(item_url,headers=headers)
-        if wb_text.status_code == 404 :
+        try:
+            wb_text=requests.get(item_url,headers=headers)
+            if wb_text.status_code == 404 :
+                pass
+            else:
+                soup = BeautifulSoup(wb_text.text,'lxml')
+                a=soup.select('.second-det-infor.clearfix > li:nth-of-type(1)')[0] if  soup.select('.second-det-infor.clearfix > li:nth-of-type(1)') != [] else None
+                if a != None:
+                    a.label.string=''
+                data = {
+                    'title':soup.select('h1.title-name')[0].text,
+                    'pub_time':soup.select('i.pr-5')[0].text.strip().split(' ')[0],
+                    'category':list(soup.select('ul.det-infor > li:nth-of-type(1) > span')[0].stripped_strings),
+                    'price': soup.select('.f22.fc-orange.f-type')[0].text,
+                    'area':list(map(lambda x:x.text,list(soup.select('ul.det-infor > li:nth-of-type(3) > a')))),
+                    'new_or_old':list(a.stripped_strings) if a != None else None,
+                    'url':item_url
+                }
+                item_detail_info_db.insert(data)
+                print('已经将这条信息插入到数据库',data)
+                item_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
+        except ConnectionError:
             pass
-        else:
-            soup = BeautifulSoup(wb_text.text,'lxml')
-            a=soup.select('.second-det-infor.clearfix > li:nth-of-type(1)')[0] if  soup.select('.second-det-infor.clearfix > li:nth-of-type(1)') != [] else None
-            if a != None:
-                a.label.string=''
-            data = {
-                'title':soup.select('h1.title-name')[0].text,
-                'pub_time':soup.select('i.pr-5')[0].text.strip().split(' ')[0],
-                'category':list(soup.select('ul.det-infor > li:nth-of-type(1) > span')[0].stripped_strings),
-                'price': soup.select('.f22.fc-orange.f-type')[0].text,
-                'area':list(map(lambda x:x.text,list(soup.select('ul.det-infor > li:nth-of-type(3) > a')))),
-                'new_or_old':list(a.stripped_strings) if a != None else None,
-                'url':item_url
-            }
-            item_detail_info_db.insert(data)
-            print('已经将这条信息插入到数据库',data)
-            item_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
 
 
 # detail_page_spider('http://bj.ganji.com/jiaju/1475537716x.htm')

@@ -55,7 +55,7 @@ def get_item_info_from(url,data=None):
             'price':soup.select('.f22.fc-orange.f-type')[0].text.strip(),
             'pub_date':soup.select('.pr-5')[0].text.strip().split(' ')[0],
             'area':list(map(lambda x:x.text,soup.select('ul.det-infor > li:nth-of-type(3) > a'))),
-            'cates':list(soup.select('ul.det-infor > li:nth-of-type(1) > span')[0].stripped_strings),
+            'cates':list(soup.select('ul.det-infor > li:nth-of-type(1) > span')[1].stripped_strings),
             'url':url
         }
         print(data)
