@@ -45,6 +45,7 @@ def get_others_commodity_url_to_db(channel_url):
         time.sleep(2)
 def url_spider():
     for i in channel_urls.find({'crawled':'false'}):
+        print(i)
         if 'qitawupin' in i or 'ershoufree' in i or 'wupinjiaohuan' in i :
             get_others_commodity_url_to_db(i)
         else:
@@ -52,8 +53,8 @@ def url_spider():
             soup=BeautifulSoup(wb_text.text,'lxml')
             urls=[b.get('href') for b in soup.select('ul li.js-item a.ft-tit') ]
             for a in urls:
+                wb_te=requests.get(a)
                 if 'click' in a and not item_urls.find_one({'item_url':a}):
-                    wb_te=requests.get(a)
                     item_urls.insert({'item_url':wb_te.url})
                     print('哈哈，已经设定目标',wb_te.url)
                 elif not item_urls.find_one({'item_url':a}):
