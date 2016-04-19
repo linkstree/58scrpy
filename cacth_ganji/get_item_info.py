@@ -80,30 +80,31 @@ def detail_page_spider(item_url):
         try:
             #这里用try的原因是因为有时候会出现connection error的错误,所以用这个方法让程序不中断
             wb_text=requests.get(item_url,headers=headers)
-            if wb_text.status_code == 404 :
-                item_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
-                print(item_url,'这个页面不存在了，忽略')
-            else:
-                soup = BeautifulSoup(wb_text.text,'lxml')
-                a=soup.select('.second-det-infor.clearfix > li:nth-of-type(1)')[0] if  soup.select('.second-det-infor.clearfix > li:nth-of-type(1)') != [] else None
-                if a != None:
-                    a.label.string=''
-                data = {
-                    'title':soup.select('h1.title-name')[0].text,
-                    'pub_time':soup.select('i.pr-5')[0].text.strip().split(' ')[0],
-                    'category':list(soup.select('ul.det-infor > li:nth-of-type(1) > span')[0].stripped_strings),
-                    'price': soup.select('.f22.fc-orange.f-type')[0].text,
-                    'area':list(map(lambda x:x.text,list(soup.select('ul.det-infor > li:nth-of-type(3) > a')))),
-                    'new_or_old':list(a.stripped_strings) if a != None else None,
-                    'url':item_url
-                }
-                item_detail_info_db.insert(data)
-                print('已经将这条信息插入到数据库',data)
-                item_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
-                # time.sleep(2)
         except:
             print('爬的太猛了跳过',item_url)
             return
+        if wb_text.status_code == 404 :
+            item_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
+            print(item_url,'这个页面不存在了，忽略')
+            return False
+        else:
+            soup = BeautifulSoup(wb_text.text,'lxml')
+            a=soup.select('.second-det-infor.clearfix > li:nth-of-type(1)')[0] if  soup.select('.second-det-infor.clearfix > li:nth-of-type(1)') != [] else None
+            if a != None:
+                a.label.string=''
+            data = {
+                'title':soup.select('h1.title-name')[0].text,
+                'pub_time':soup.select('i.pr-5')[0].text.strip().split(' ')[0],
+                'category':list(soup.select('ul.det-infor > li:nth-of-type(1) > span')[0].stripped_strings),
+                'price': soup.select('.f22.fc-orange.f-type')[0].text,
+                'area':list(map(lambda x:x.text,list(soup.select('ul.det-infor > li:nth-of-type(3) > a')))),
+                'new_or_old':list(a.stripped_strings) if a != None else None,
+                'url':item_url
+            }
+            item_detail_info_db.insert(data)
+            print('已经将这条信息插入到数据库',data)
+            item_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
+            # time.sleep(2)
 
 
 
