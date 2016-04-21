@@ -82,6 +82,7 @@ def url_spider(channel_url):
     except:
         print('这个页面使用request方法请求出错了，丢弃',channel_url)
         return False
+    wb_text.encoding='utf-8'
     soup=BeautifulSoup(wb_text.text,'lxml')
     if soup.select('ul li.js-item a.ft-tit'):
         urls=[b.get('href') for b in soup.select('ul li.js-item a.ft-tit') ]
@@ -123,6 +124,7 @@ def detail_page_spider(item_url):
             print(item_url,'这个页面不存在了，忽略')
             return False
         else:
+            wb_text.encoding='utf-8'
             soup = BeautifulSoup(wb_text.text,'lxml')
             a=soup.select('.second-det-infor.clearfix > li:nth-of-type(1)')[0] if  soup.select('.second-det-infor.clearfix > li:nth-of-type(1)') != [] else None
             if a != None:
