@@ -72,6 +72,7 @@ def get_others_commodity_url_to_db(channel_url):
         elif not item_urls.find_one({'item_url':a}):
             item_urls.insert({'item_url':a})
             print('哈哈，已经将商品的详情页的url加入到item_urls库了',a)
+    channel_urls.update({'channel_url':channel_url},{'$set':{'crawled':'true'}})
 
 
 
@@ -80,6 +81,7 @@ def url_spider(channel_url):
     try:
         wb_text=requests.get(channel_url,headers=headers)
     except:
+        channel_urls.update({'channel':channel_url},{'$set':{'crawled':'networkproblem'}})
         print('这个页面使用request方法请求出错了，丢弃',channel_url)
         return False
     wb_text.encoding='utf-8'
@@ -109,6 +111,7 @@ def url_spider(channel_url):
             item_urls.insert({'item_url':a,'crawled':'false'})
             print('已经将插入到item_urls库中了',wb_te.url)
         time.sleep(2)
+    channel_urls.update({'channel_url':channel_url},{'$set':{'crawled':'true'}})
 
 
 def detail_page_spider(item_url):
@@ -143,6 +146,8 @@ def detail_page_spider(item_url):
                 print('已经将这条信息插入到数据库',data)
             else:
                 print('这条信息里有空值丢弃',data)
+        item_urls.update({'item_url':item_url},{'$set':{'crawled':'true'}})
+
 
             # time.sleep(2)
 
@@ -152,14 +157,10 @@ def detail_page_spider(item_url):
 if __name__ == '__main__':
     get_channel_url_to_db(ganji_channel.get_all_channel(),range(1,1000))
     for i in channel_urls.find({'crawled':'false'},no_cursor_timeout=True):
-        # print(time.clock())
         if 'qitawupin' in i['channel_url'] or 'ershoufree' in i['channel_url'] or 'wupinjiaohuan' in i['channel_url'] :
             get_others_commodity_url_to_db(i['channel_url'])
         else:
             url_spider(i['channel_url'])
-        channel_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
-        # if time.clock() > 5:
-        #     continue
 #     pool= Pool(processes = 8)
 #     pool.map(detail_page_spider,[i['item_url'] for i  in item_urls.find({'crawled':'false'})])
 #     pool.close()
@@ -168,7 +169,6 @@ if __name__ == '__main__':
     for i in item_urls.find({'crawled':'false'},no_cursor_timeout=True):
         detail_page_spider(i['item_url'])
         time.sleep(2)
-        item_urls.update({'_id':i['_id']},{'$set':{'crawled':'true'}})
 
 
 
